@@ -85,3 +85,26 @@ def activate_brown_power(inspector_logger, data, current_map):
 
 def brown_character_power(inspector_logger, data, current_map):
     return 0
+
+
+def blue_character_power_room(inspector_logger, data, current_map):
+    top_locks = get_biggest_rooms(data, current_map)
+    inspector_logger.debug(f"top_locks ------- {top_locks}")
+    response_index = random.choice(top_locks)
+    return response_index
+
+
+def blue_character_power_exit(inspector_logger, data, current_map):
+    power_exit = random.randint(0, len(data) -1)
+    inspector_logger.debug(f"power_exit ------- {power_exit}")
+    response_index = power_exit
+    return response_index
+
+def activate_black_power(inspector_logger, data, current_map):
+    return 1
+
+def activate_white_power(inspector_logger, data, current_map):
+    return 0
+
+def activate_purple_power(inspector_logger, data, current):
+    return 0
