@@ -4,6 +4,7 @@ import os
 import random
 import socket
 from logging.handlers import RotatingFileHandler
+from inspector_plays import get_current_positions, select_character, select_position
 
 import protocol
 
@@ -39,6 +40,7 @@ class Player():
         # self.old_question = ""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.moves = {"select character": select_character, "select position": select_position}
 
     def connect(self):
         self.socket.connect((host, port))
@@ -46,61 +48,20 @@ class Player():
     def reset(self):
         self.socket.close()
 
-    def get_current_positions(self, game_state):
-        current_map = [[], [], [], [], [], [], [], [], [], []]
-        for char in game_state["characters"]:
-            current_map[char["position"]].append(char["color"])
-        return current_map
-
-    def get_people_from_point(self, characters_data, current_map):
-        nb_characters = [0] * len(characters_data)
-        for i in range(len(characters_data)):
-            for case in current_map:
-                if characters_data[i]["color"] in case:
-                    nb_characters[i] = len(case)
-        return nb_characters
-
-    def get_most_isolated_char(self, nb_characters):
-        minimum_char = min(nb_characters)
-        minimum_indexes = []
-        for i in range(len(nb_characters)):
-            if nb_characters[i] == minimum_char:
-                minimum_indexes.append(i)
-        return minimum_indexes
-
-    def get_biggest_room(self, possible_moves, current_map):
-        biggest_rooms_index = []
-        most_full_room = 0
-        for i in range(len(possible_moves)):
-            if len(current_map[possible_moves[i]]) > most_full_room:
-                most_full_room = len(current_map[possible_moves[i]])
-        for i in range(len(possible_moves)):
-            if len(current_map[possible_moves[i]]) == most_full_room:
-                biggest_rooms_index.append(i)
-        return biggest_rooms_index
-
     def answer(self, question):
         # work
         data = question["data"]
         game_state = question["game state"]
-        current_map = self.get_current_positions(game_state)
+        current_map = get_current_positions(game_state)
         inspector_logger.debug("|\n|")
         inspector_logger.debug(f"current-map ------- {current_map}")
-        if question["question type"] == "select character":
-            nb_characters = self.get_people_from_point(data, current_map)
-            minimum_indexes = self.get_most_isolated_char(nb_characters)
-            inspector_logger.debug(f"nb_characters ------- {nb_characters}")
-            inspector_logger.debug(f"minimum_indexes ----- {minimum_indexes}")
-            response_index = random.randint(0, len(minimum_indexes)-1)
-        elif question["question type"] == "select position":
-            big_rooms = self.get_biggest_room(data, current_map)
-            inspector_logger.debug(f"big_rooms ------- {big_rooms}")
-            response_index = random.randint(0, len(big_rooms)-1)
+        inspector_logger.debug("inspector answers")
+        inspector_logger.debug(f"question type ----- {question['question type']}")
+        if question["question type"] in self.moves:
+            response_index = self.moves[question["question type"]](inspector_logger, data, current_map)
         else:
             response_index = random.randint(0, len(data)-1)
         # log
-        inspector_logger.debug("inspector answers")
-        inspector_logger.debug(f"question type ----- {question['question type']}")
         inspector_logger.debug(f"data -------------- {data}")
         inspector_logger.debug(f"response index ---- {response_index}")
         inspector_logger.debug(f"response ---------- {data[response_index]}")
