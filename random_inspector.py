@@ -6,7 +6,7 @@ import socket
 from logging.handlers import RotatingFileHandler
 from inspector_plays import get_current_positions, select_character,\
     select_position, blue_character_power_room,\
-    blue_character_power_exit, activate_black_power, activate_white_power, activate_purple_power
+    blue_character_power_exit, activate_black_power, activate_white_power, activate_purple_power, grey_character_power, activate_brown_power, brown_character_power
 
 import protocol
 
@@ -46,7 +46,8 @@ class Player():
                       "blue character power room": blue_character_power_room,
                       "blue character power exit": blue_character_power_exit,
                       "activate black power": activate_black_power, "activate white power": activate_white_power,
-                      "activate purple power": activate_purple_power}
+                      "activate purple power": activate_purple_power, "grey character power": grey_character_power, 
+                      "activate brown power": activate_brown_power, "brown character power": brown_character_power}
 
     def connect(self):
         self.socket.connect((host, port))
@@ -64,6 +65,7 @@ class Player():
         inspector_logger.debug("inspector answers")
         inspector_logger.debug(f"question type ----- {question['question type']}")
         if question["question type"] in self.moves:
+            print(question["question type"])
             response_index = self.moves[question["question type"]](inspector_logger, data, current_map)
         else:
             response_index = random.randint(0, len(data)-1)
