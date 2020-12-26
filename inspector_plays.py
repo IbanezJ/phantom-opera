@@ -46,17 +46,42 @@ def get_biggest_rooms(possible_moves, current_map):
     return biggest_rooms_index
 
 
+def grey_character_power(inspector_logger, data, current_map):
+    lowest_room_population = 10
+    indexes = []
+    for i in range(len(data)):
+        if lowest_room_population > len(current_map[data[i]]):
+            lowest_room_population = len(current_map[data[i]])
+    for j in range(len(data)):
+        if len(current_map[data[j]]) == lowest_room_population:
+            indexes.append(j)
+    response_index = random.choice(indexes)
+    return response_index
+
+
 def select_character(inspector_logger, data, current_map):
     nb_characters = get_number_characters(data, current_map)
     minimum_indexes = get_most_isolated_char(nb_characters)
     inspector_logger.debug(f"nb_characters ------- {nb_characters}")
     inspector_logger.debug(f"minimum_indexes ----- {minimum_indexes}")
-    response_index = random.randint(0, len(minimum_indexes) - 1)
+    response_index = random.choice(minimum_indexes)
     return response_index
 
 
 def select_position(inspector_logger, data, current_map):
     big_rooms = get_biggest_rooms(data, current_map)
     inspector_logger.debug(f"big_rooms ------- {big_rooms}")
-    response_index = random.randint(0, len(big_rooms) - 1)
+    response_index = random.choice(big_rooms)
     return response_index
+
+
+def activate_brown_power(inspector_logger, data, current_map):
+    for room in current_map:
+        if "brown" in room:
+            if len(room) == 2:
+                return 1
+    return 0
+
+
+def brown_character_power(inspector_logger, data, current_map):
+    return 0
