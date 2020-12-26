@@ -4,7 +4,9 @@ import os
 import random
 import socket
 from logging.handlers import RotatingFileHandler
-from inspector_plays import get_current_positions, select_character, select_position
+from inspector_plays import get_current_positions, select_character,\
+    select_position, blue_character_power_room,\
+    blue_character_power_exit, activate_black_power, activate_white_power, activate_purple_power
 
 import protocol
 
@@ -40,7 +42,11 @@ class Player():
         # self.old_question = ""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.moves = {"select character": select_character, "select position": select_position}
+        self.moves = {"select character": select_character, "select position": select_position,
+                      "blue character power room": blue_character_power_room,
+                      "blue character power exit": blue_character_power_exit,
+                      "activate black power": activate_black_power, "activate white power": activate_white_power,
+                      "activate purple power": activate_purple_power}
 
     def connect(self):
         self.socket.connect((host, port))
