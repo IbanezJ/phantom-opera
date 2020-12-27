@@ -46,6 +46,30 @@ def get_biggest_rooms(possible_moves, current_map):
     return biggest_rooms_index
 
 
+# we select the characters who are the most isolated to lead them with other chars
+def select_character(inspector_logger, data, current_map):
+    i = 0
+    for char in data:
+        if char["color"] == "red":
+            return i
+        i += 1
+    nb_characters = get_number_characters(data, current_map)
+    minimum_indexes = get_most_isolated_char(nb_characters)
+    inspector_logger.debug(f"nb_characters ------- {nb_characters}")
+    inspector_logger.debug(f"minimum_indexes ----- {minimum_indexes}")
+    response_index = random.choice(minimum_indexes)
+    return response_index
+
+
+# we select rooms where there is already other characters
+def select_position(inspector_logger, data, current_map):
+    big_rooms = get_biggest_rooms(data, current_map)
+    inspector_logger.debug(f"big_rooms ------- {big_rooms}")
+    response_index = random.choice(big_rooms)
+    return response_index
+
+
+# we try to switch off lights of a room where there is only one person or nobody
 def grey_character_power(inspector_logger, data, current_map):
     lowest_room_population = 10
     indexes = []
@@ -59,22 +83,7 @@ def grey_character_power(inspector_logger, data, current_map):
     return response_index
 
 
-def select_character(inspector_logger, data, current_map):
-    nb_characters = get_number_characters(data, current_map)
-    minimum_indexes = get_most_isolated_char(nb_characters)
-    inspector_logger.debug(f"nb_characters ------- {nb_characters}")
-    inspector_logger.debug(f"minimum_indexes ----- {minimum_indexes}")
-    response_index = random.choice(minimum_indexes)
-    return response_index
-
-
-def select_position(inspector_logger, data, current_map):
-    big_rooms = get_biggest_rooms(data, current_map)
-    inspector_logger.debug(f"big_rooms ------- {big_rooms}")
-    response_index = random.choice(big_rooms)
-    return response_index
-
-
+# the brown power is activated only if he leaves another character behind
 def activate_brown_power(inspector_logger, data, current_map):
     for room in current_map:
         if "brown" in room:
@@ -87,6 +96,7 @@ def brown_character_power(inspector_logger, data, current_map):
     return 0
 
 
+# we put the locks near rooms with a lot of persons so they stay together
 def blue_character_power_room(inspector_logger, data, current_map):
     top_locks = get_biggest_rooms(data, current_map)
     inspector_logger.debug(f"top_locks ------- {top_locks}")
@@ -100,11 +110,17 @@ def blue_character_power_exit(inspector_logger, data, current_map):
     response_index = power_exit
     return response_index
 
+
+# it brings everyone close so we always activate it
 def activate_black_power(inspector_logger, data, current_map):
     return 1
 
+
+# it separates him to everyone else so we never activate it
 def activate_white_power(inspector_logger, data, current_map):
     return 0
 
+
+# it just switches positions so it's not necessary
 def activate_purple_power(inspector_logger, data, current):
     return 0

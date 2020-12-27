@@ -4,6 +4,9 @@ import os
 import random
 import socket
 from logging.handlers import RotatingFileHandler
+from inspector_plays import get_current_positions, select_character,\
+    select_position, blue_character_power_room,\
+    blue_character_power_exit, activate_black_power, activate_white_power, activate_purple_power, grey_character_power, activate_brown_power, brown_character_power
 
 import protocol
 
@@ -39,6 +42,12 @@ class Player():
         # self.old_question = ""
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.moves = {"select character": select_character, "select position": select_position,
+                      "blue character power room": blue_character_power_room,
+                      "blue character power exit": blue_character_power_exit,
+                      "activate black power": activate_black_power, "activate white power": activate_white_power,
+                      "activate purple power": activate_purple_power, "grey character power": grey_character_power, 
+                      "activate brown power": activate_brown_power, "brown character power": brown_character_power}
 
     def connect(self):
         self.socket.connect((host, port))
@@ -50,11 +59,18 @@ class Player():
         # work
         data = question["data"]
         game_state = question["game state"]
-        response_index = random.randint(0, len(data)-1)
-        # log
+        current_map = get_current_positions(game_state)
         inspector_logger.debug("|\n|")
+        inspector_logger.debug(f"current-map ------- {current_map}")
         inspector_logger.debug("inspector answers")
         inspector_logger.debug(f"question type ----- {question['question type']}")
+        if question["question type"] in self.moves:
+            print(question["question type"])
+            response_index = self.moves[question["question type"]](inspector_logger, data, current_map)
+        else:
+            print("random")
+            response_index = random.randint(0, len(data)-1)
+        # log
         inspector_logger.debug(f"data -------------- {data}")
         inspector_logger.debug(f"response index ---- {response_index}")
         inspector_logger.debug(f"response ---------- {data[response_index]}")
