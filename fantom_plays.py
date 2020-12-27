@@ -6,7 +6,8 @@ import random
 def get_current_positions(game_state):
     current_map = [[], [], [], [], [], [], [], [], [], []]
     for char in game_state["characters"]:
-        current_map[char["position"]].append(char["color"])
+        if char["suspect"]:
+            current_map[char["position"]].append(char["color"])
     return current_map
 
 

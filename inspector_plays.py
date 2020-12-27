@@ -6,7 +6,8 @@ import random
 def get_current_positions(game_state):
     current_map = [[], [], [], [], [], [], [], [], [], []]
     for char in game_state["characters"]:
-        current_map[char["position"]].append(char["color"])
+        if char["suspect"]:
+            current_map[char["position"]].append(char["color"])
     return current_map
 
 
@@ -63,6 +64,11 @@ def select_character(inspector_logger, data, current_map):
 
 # we select rooms where there is already other characters
 def select_position(inspector_logger, data, current_map):
+    i = 0
+    for room in data:
+        if len(current_map[room]) == 1:
+            return i
+        i += 1
     big_rooms = get_biggest_rooms(data, current_map)
     inspector_logger.debug(f"big_rooms ------- {big_rooms}")
     response_index = random.choice(big_rooms)
